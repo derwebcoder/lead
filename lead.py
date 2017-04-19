@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+import sys
 import docker as d
 
 client = d.from_env(version="1.27")
@@ -28,7 +29,10 @@ def docker(image):
     def docker_decorator(func):
         container = client.containers.run(image, "sleep infinity", detach=True)
         def func_wrapper(*kargs, **kwargs):
-            func(*kargs, exec=exec_wrapper(container), **kwargs)
+            exec_func = exec_wrapper(container)
+            print("Exec Func:")
+            print(exec_func)
+            func(*kargs, exec=exec_func, **kwargs)
             container.kill()
             container.remove(force=True)
         return func_wrapper
@@ -36,8 +40,10 @@ def docker(image):
 
 job_dict = dict()
 
-def job(name):
+def job(name="unknown", description="unknown"):
     def job_decorator(func):
+        if ' ' in name:
+            raise ValueError("Ein Job Name darf kein Leerzeichen enthalten: " + name)
         job_dict[name] = func
         def func_wrapper(*kargs, **kwargs):
             print("kargs: ")
@@ -50,6 +56,40 @@ def job(name):
 
 exec(compile(open("pipeline.py", "rb").read(), "pipeline.py", 'exec'))
 
-test("Ivana", "22")
+def clean_arguments(args):
+    ret_jobs = list()
+    ret_args = dict()
+
+    print("##### ARGS")
+    for index, k in enumerate(args):
+        print(index, k)
+
+        if k.startswith('--'):
+            if '=' in k:
+                key, val = k.split('=')
+            else:
+                key, val = k, 'true'
+            ret_args[key.strip('--')] = val
+        else:
+            ret_jobs.append(k)
+
+    print(ret_jobs)
+    print(ret_args)
+    print("##### ARGS")
+    return ret_jobs, ret_args
+
+jobs_arg, opt_arg = clean_arguments(sys.argv[1:])
+
+def pre_check(jobs_arg, job_dict):
+    for job in jobs_arg:
+        if job not in job_dict:
+            print("nicht vorhanden")
+        else:
+            print("vorhanden")
+
+pre_check(jobs_arg, job_dict)
+
+for job in jobs_arg:
+    job_dict[job]()
 
 print(job_dict)
