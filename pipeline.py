@@ -5,7 +5,7 @@ def test(name="marvin", age="6", exec=None):
     print(name)
     print(age)
     print(exec)
-    exit_code, output = exec("bash -c 'echo 'Marvin'; echo 'ist6'; echo 'Franzi'; exit 6'")
+    exit_code, output = exec("bash -c 'echo 'Marvin'; echo 'ist6'; echo 'Marvin'; exit 6'")
 
     print("exit code is " + str(exit_code))
     print("Command output is: ")

@@ -50,17 +50,37 @@ def pull_image(image):
     else:
         print("Image " + image + " already downloaded.")
 
-def docker(image):
+def docker(image, mountDocker=False):
     def docker_decorator(func):
         def func_wrapper(*kargs, **kwargs):
             pull_image(image)
-            container = client.containers.run(image, "", 
-                entrypoint="sh -c 'while true; do sleep 1349; done'",
-                volumes={os.getcwd(): {'bind':'/source', 'mode':'rw'},
-                    '/var/run/docker.sock': {'bind':'/var/run/docker.sock', 'mode': 'ro'}},
-                working_dir="/source",
-                user=str(os.getuid())+":"+str(os.getgid()),
-                detach=True)
+            container=None
+            if mountDocker is False:
+                container = client.containers.run(image, "",
+                                                entrypoint="sh -c 'while true; do sleep 1349; done'",
+                                                volumes={
+                                                    os.getcwd(): {
+                                                        'bind': '/source',
+                                                        'mode': 'rw'
+                                                    }
+                                                },
+                                                working_dir="/source",
+                                                user=str(os.getuid())+":"+str(os.getgid()),
+                                                detach=True)
+            else:
+                container = client.containers.run(image, "",
+                                                entrypoint="sh -c 'while true; do sleep 1349; done'",
+                                                volumes={
+                                                    os.getcwd(): {
+                                                        'bind': '/source',
+                                                        'mode': 'rw'
+                                                    },
+                                                    '/var/run/docker.sock': {
+                                                        'bind': '/var/run/docker.sock',
+                                                        'mode': 'ro'}
+                                                    },
+                                                working_dir="/source",
+                                                detach=True)
             print("Container started")
             exec_func = exec_wrapper(container)
             print("Exec Func:")
