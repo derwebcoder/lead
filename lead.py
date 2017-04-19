@@ -2,6 +2,7 @@
 
 import sys
 import os
+import ast
 import docker as d
 
 client = d.from_env(version="1.27")
@@ -9,11 +10,14 @@ ll_client = d.APIClient(version="1.27")
 
 def exec_wrapper(container):
     def exec(cmd, shell=None):
-        if type(shell) is not str:
+        if shell is not None and type(shell) is not str:
             raise Exception("shell has to be a string")
         
         if shell == "bash":
             cmd = "bash -c '" + cmd + "'"
+
+        if shell == "sh":
+            cmd = "sh -c '" + cmd + "'"
 
         print("exec " + cmd + " in " + container.id)
 
@@ -32,12 +36,28 @@ def exec_wrapper(container):
     
     return exec
 
+def pull_image(image):
+    print("checking if image " + image + " exists...")
+    try:
+        client.images.get(image)
+    except d.errors.ImageNotFound:
+        image_repository, image_tag = image.split(':')
+        pull_stream = ll_client.pull(image_repository,tag=image_tag,stream=True)
+        for line in pull_stream:
+            download_status = ast.literal_eval(line.decode('UTF-8'))
+            print(download_status.get('id', "unknown id") + " [" + download_status.get('status', "unknown status") + "] " + download_status.get('progress', ""))
+        print("Image " + image + " downloaded.")
+    else:
+        print("Image " + image + " already downloaded.")
+
 def docker(image):
     def docker_decorator(func):
         def func_wrapper(*kargs, **kwargs):
+            pull_image(image)
             container = client.containers.run(image, "", 
-                entrypoint="sleep infinity",
-                volumes={os.getcwd(): {'bind':'/source', 'mode':'rw'}},
+                entrypoint="sh -c 'while true; do sleep 1349; done'",
+                volumes={os.getcwd(): {'bind':'/source', 'mode':'rw'},
+                    '/var/run/docker.sock': {'bind':'/var/run/docker.sock', 'mode': 'ro'}},
                 working_dir="/source",
                 user=str(os.getuid())+":"+str(os.getgid()),
                 detach=True)
@@ -54,11 +74,11 @@ def docker(image):
 
 job_dict = dict()
 
-def job(name=None, description="unknown"):
+def job(name=None, description="No description given."):
     def job_decorator(func):
         print("func")
         dir(func)
-        job_name=func.job_name
+        job_name=getattr(func, 'job_name', func.__name__)
         if name is not None:
             if ' ' in name:
                 raise ValueError("Ein Job Name darf kein Leerzeichen enthalten: " + name)

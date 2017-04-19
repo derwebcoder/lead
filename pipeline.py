@@ -16,7 +16,7 @@ def test(name="marvin", age="6", exec=None):
 def testEinsZweiDrei(exec=None):
     exit_code, output = exec("bash -c 'echo \'ThisShitRocks\'; exit 0'")
 
-@job(name="alterFile", description="Does some magical stuff too")
+@job(description="Does some magical stuff too")
 @docker("ubuntu")
 def alterFile(exec=None):
     exit_code, output = exec("""
