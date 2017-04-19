@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import docker as d
 
 client = d.from_env(version="1.27")
@@ -25,22 +27,29 @@ def exec_wrapper(container):
 def docker(image):
     def docker_decorator(func):
         container = client.containers.run(image, "sleep infinity", detach=True)
-        def func_wrapper(name):
-            func(name, exec=exec_wrapper(container))
+        def func_wrapper(*kargs, **kwargs):
+            func(*kargs, exec=exec_wrapper(container), **kwargs)
             container.kill()
             container.remove(force=True)
         return func_wrapper
     return docker_decorator
 
+job_dict = dict()
 
-@docker("ubuntu")
-def test(name, exec=None):
-    print("test")
-    exit_code, output = exec("bash -c 'echo '" + name + "'; echo 'Marian'; echo 'Franzi'; exit 6'")
+def job(name):
+    def job_decorator(func):
+        job_dict[name] = func
+        def func_wrapper(*kargs, **kwargs):
+            print("kargs: ")
+            print(kargs)
+            print("kwargs: ")
+            print(kwargs)
+            func(*kargs, **kwargs)
+        return func_wrapper
+    return job_decorator
 
-    print("exit code is " + str(exit_code))
-    print("Command output is: ")
-    print(output)
+exec(compile(open("pipeline.py", "rb").read(), "pipeline.py", 'exec'))
 
+test("Ivana", "22")
 
-test("Marvin")
+print(job_dict)
