@@ -11,7 +11,16 @@ def test(name="marvin", age="6", exec=None):
     print("Command output is: ")
     print(output)
 
-@job(name="test123", description="Does some magical stuff too")
+@job(description="Does some magical stuff too")
 @docker("ubuntu")
 def testEinsZweiDrei(exec=None):
     exit_code, output = exec("bash -c 'echo \'ThisShitRocks\'; exit 0'")
+
+@job(name="alterFile", description="Does some magical stuff too")
+@docker("ubuntu")
+def alterFile(exec=None):
+    exit_code, output = exec("""
+        echo "Eine Neue Zeile" >> test.txt &&
+        test=$(expr 3 + 4) ;
+        echo "Das Ergebnis ist $test"
+        """, shell="bash")

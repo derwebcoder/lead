@@ -1,13 +1,20 @@
 #!/usr/bin/python3
 
 import sys
+import os
 import docker as d
 
 client = d.from_env(version="1.27")
 ll_client = d.APIClient(version="1.27")
 
 def exec_wrapper(container):
-    def exec(cmd):
+    def exec(cmd, shell=None):
+        if type(shell) is not str:
+            raise Exception("shell has to be a string")
+        
+        if shell == "bash":
+            cmd = "bash -c '" + cmd + "'"
+
         print("exec " + cmd + " in " + container.id)
 
         exec_id = ll_client.exec_create(container.id, cmd)['Id']
@@ -27,24 +34,36 @@ def exec_wrapper(container):
 
 def docker(image):
     def docker_decorator(func):
-        container = client.containers.run(image, "sleep infinity", detach=True)
         def func_wrapper(*kargs, **kwargs):
+            container = client.containers.run(image, "", 
+                entrypoint="sleep infinity",
+                volumes={os.getcwd(): {'bind':'/source', 'mode':'rw'}},
+                working_dir="/source",
+                user=str(os.getuid())+":"+str(os.getgid()),
+                detach=True)
+            print("Container started")
             exec_func = exec_wrapper(container)
             print("Exec Func:")
             print(exec_func)
             func(*kargs, exec=exec_func, **kwargs)
             container.kill()
             container.remove(force=True)
+        func_wrapper.job_name = func.__name__
         return func_wrapper
     return docker_decorator
 
 job_dict = dict()
 
-def job(name="unknown", description="unknown"):
+def job(name=None, description="unknown"):
     def job_decorator(func):
-        if ' ' in name:
-            raise ValueError("Ein Job Name darf kein Leerzeichen enthalten: " + name)
-        job_dict[name] = func
+        print("func")
+        dir(func)
+        job_name=func.job_name
+        if name is not None:
+            if ' ' in name:
+                raise ValueError("Ein Job Name darf kein Leerzeichen enthalten: " + name)
+            job_name=name
+        job_dict[job_name] = func
         def func_wrapper(*kargs, **kwargs):
             print("kargs: ")
             print(kargs)
