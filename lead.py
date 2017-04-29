@@ -42,7 +42,7 @@ def pull_image(image):
         client.images.get(image)
     except d.errors.ImageNotFound:
         image_repository, image_tag = image.split(':')
-        pull_stream = ll_client.pull(image_repository,tag=image_tag,stream=True)
+        pull_stream = ll_client.pull(image_repository, tag=image_tag, stream=True)
         for line in pull_stream:
             download_status = ast.literal_eval(line.decode('UTF-8'))
             print(download_status.get('id', "unknown id") + " [" + download_status.get('status', "unknown status") + "] " + download_status.get('progress', ""))
@@ -50,37 +50,46 @@ def pull_image(image):
     else:
         print("Image " + image + " already downloaded.")
 
-def docker(image, mountDocker=False):
+def docker(image, mountDocker=False, volumes=None, useHostUser=False):
     def docker_decorator(func):
         def func_wrapper(*kargs, **kwargs):
             pull_image(image)
             container=None
-            if mountDocker is False:
-                container = client.containers.run(image, "",
-                                                entrypoint="sh -c 'while true; do sleep 1349; done'",
-                                                volumes={
-                                                    os.getcwd(): {
-                                                        'bind': '/source',
-                                                        'mode': 'rw'
-                                                    }
-                                                },
-                                                working_dir="/source",
-                                                user=str(os.getuid())+":"+str(os.getgid()),
-                                                detach=True)
-            else:
-                container = client.containers.run(image, "",
-                                                entrypoint="sh -c 'while true; do sleep 1349; done'",
-                                                volumes={
-                                                    os.getcwd(): {
-                                                        'bind': '/source',
-                                                        'mode': 'rw'
-                                                    },
-                                                    '/var/run/docker.sock': {
-                                                        'bind': '/var/run/docker.sock',
-                                                        'mode': 'ro'}
-                                                    },
-                                                working_dir="/source",
-                                                detach=True)
+            user=None
+            volumesDefault={
+                os.getcwd(): {
+                    'bind': '/source',
+                    'mode': 'rw'
+                }
+            }
+            volumesTotal={}
+            volumesTotal.update(volumesDefault)
+            if mountDocker is True:
+                volumesTotal.update({
+                    '/var/run/docker.sock': {
+                        'bind': '/var/run/docker.sock',
+                        'mode': 'ro'
+                    }
+                })
+            os.path.expanduser("~")
+            if isinstance(volumes, dict):
+                # Cycling through the volumes to replace dict keys (host path) with absolute path or expanding ~ to user home
+                parsedVolumes={}
+                for key in volumes:
+                    print("replacing " + key)
+                    parsedVolumes[os.path.abspath(os.path.expanduser(key))] = volumes[key]
+                print(parsedVolumes)
+                volumesTotal.update(parsedVolumes)
+
+            if useHostUser is True:
+                user=str(os.getuid())+":"+str(os.getgid())
+
+            container = client.containers.run(image, "",
+                                            entrypoint="sh -c 'while true; do sleep 1349; done'",
+                                            volumes=volumesTotal,
+                                            working_dir="/source", 
+                                            user=user,
+                                            detach=True)
             print("Container started")
             exec_func = exec_wrapper(container)
             print("Exec Func:")
