@@ -1,12 +1,30 @@
 #!/usr/bin/python3
 
 import sys
+import signal
 import os
 import ast
 import docker as d
 
 client = d.from_env(version="1.27")
 ll_client = d.APIClient(version="1.27")
+
+def signal_handler(signal, frame):
+    print()
+    print("====== Received signal " + str(signal))
+    print("==== Stopping pipeline")
+    print("==== Stopping and removing containers")
+    remove_all_containers()
+    print("==== Ending lead with error 1")
+    sys.exit(1)
+
+def remove_all_containers():
+    for container in containers:
+        container.kill()
+        container.remove(force=True)
+
+signal.signal(signal.SIGINT, signal_handler)
+signal.signal(signal.SIGTERM, signal_handler)
 
 def exec_wrapper(container):
     def exec(cmd, shell=None):
@@ -50,14 +68,64 @@ def pull_image(image):
     else:
         print("Image " + image + " already downloaded.")
 
-def docker(image, mountDocker=False, volumes=None, useHostUser=False):
+def getcwd():
+    return os.environ.get("CWD", os.getcwd())
+
+def computeHomeDirectory(path=""):
+    print("cHD path: " + path)
+    home=os.environ.get("HOME", os.path.expanduser("~"))
+    
+    print("cHD HOME: " + home)
+    home_replaced=path.replace("~",home,1)
+    print("cHD repl: " + home_replaced)
+    return path if home_replaced == "" else home_replaced
+
+def computeAbsolutePath(path=""):
+    if not path.startswith("."):
+        return path
+    if path == "." or path == "./":
+        return getcwd()
+
+    cwd=getcwd()
+    path_current=path
+    print("path_current: " + path_current)
+    nr_parent_dirs=path_current.count("../")
+    print("nr_parent_dirs: " + str(nr_parent_dirs))
+    nr_dirs_cwd=cwd.count("/")
+    print("nr_dirs_cwd: " + str(nr_dirs_cwd))
+
+    if nr_parent_dirs > nr_dirs_cwd:
+        print("Error: Invalid path '" + path + "' for current working directory '" + cwd + "'.")
+        sys.exit(1)
+
+    cwd_slash_positions=( [pos for pos, char in enumerate(cwd) if char == "/"])
+    print("cwd_slash_positions: ")
+    print(cwd_slash_positions)
+    cwd_cut=cwd[:(cwd_slash_positions[nr_dirs_cwd - nr_parent_dirs])+1]
+    print("cwd_cut: " + cwd_cut)
+
+    path_without_parents=path.replace("../", "")
+    path_without_relative_path=path_without_parents.replace("./", "")
+
+    print("cAP path: "  + path)
+    cwd=getcwd()
+    print("cAP cwd : "  + cwd)
+    absolute_path=cwd_cut + path_without_relative_path
+    print("cAP abso: " + absolute_path)
+    return absolute_path
+
+containers=[]
+def docker(image, mountDocker=False, volumes=None, useHostUser=True):
     def docker_decorator(func):
         def func_wrapper(*kargs, **kwargs):
             pull_image(image)
             container=None
             user=None
+            print("**************************************************")
+            print(os.getcwd())
+            print("**************************************************")
             volumesDefault={
-                os.getcwd(): {
+                getcwd(): {
                     'bind': '/source',
                     'mode': 'rw'
                 }
@@ -77,7 +145,10 @@ def docker(image, mountDocker=False, volumes=None, useHostUser=False):
                 parsedVolumes={}
                 for key in volumes:
                     print("replacing " + key)
-                    parsedVolumes[os.path.abspath(os.path.expanduser(key))] = volumes[key]
+                    computed_volume = computeAbsolutePath(computeHomeDirectory(key))
+                    print("computed "  + computed_volume)
+                    parsedVolumes[computed_volume] = volumes[key]
+                    #parsedVolumes[os.path.abspath(os.path.expanduser(key))] = volumes[key]
                 print(parsedVolumes)
                 volumesTotal.update(parsedVolumes)
 
@@ -90,13 +161,17 @@ def docker(image, mountDocker=False, volumes=None, useHostUser=False):
                                             working_dir="/source", 
                                             user=user,
                                             detach=True)
+            containers.append(container)
             print("Container started")
             exec_func = exec_wrapper(container)
             print("Exec Func:")
             print(exec_func)
-            func(*kargs, exec=exec_func, **kwargs)
+            return_value=func(*kargs, exec=exec_func, **kwargs)
             container.kill()
             container.remove(force=True)
+            containers.remove(container)
+            return return_value
+
         func_wrapper.job_name = func.__name__
         return func_wrapper
     return docker_decorator
@@ -118,7 +193,8 @@ def job(name=None, description="No description given."):
             print(kargs)
             print("kwargs: ")
             print(kwargs)
-            func(*kargs, **kwargs)
+            return func(*kargs, **kwargs)
+        #job_dict[job_name] = func_wrapper
         return func_wrapper
     return job_decorator
 
@@ -158,6 +234,17 @@ def pre_check(jobs_arg, job_dict):
 pre_check(jobs_arg, job_dict)
 
 for job in jobs_arg:
-    job_dict[job]()
+    return_value=job_dict[job]()
+    if return_value is not None:
+        if type(return_value) is not int:
+            print("The job \"" + job + "\" returned \"" + str(return_value) + "\".")
+            print("Failing pipeline because of non zero return value.")
+            remove_all_containers()
+            sys.exit(2)
+        else:
+            if return_value > 0:
+                print("The job \"" + job + "\" returned \"" + str(return_value) + "\".")
+                remove_all_containers()
+                sys.exit(return_value)
 
 print(job_dict)
