@@ -58,25 +58,19 @@ You also have to either [enable Docker management for non-root user](https://doc
 
 ### Using Docker
 
-In the root directory of this project run
+In the root directory of this project run `docker build -t lead . to build a new Docker image containing everything necessary for running lead.
 
-```bash
-docker build -t lead .
-```
-
-to build a new Docker image containing everything necessary for running lead.
-
-Create an alias for running the container using
+Create an alias for running the container using:
 
 ```bash
 alias lead="docker run -it -v /var/run/docker.sock:/var/run/docker.sock -v $(pwd):/source -e CWD=$(pwd) -e HOME=$HOME lead"
 ```
 
-Afterwards you can just execute `lead` followed by any command you wish.
+Afterwards you can just execute `lead` followed by the jobs and parameters you wish. See [CLI Commands](#CLICommands.)
 
 ### Using Python
 
-Install Python 3 (at least 3.5). Install [docker-py](https://github.com/docker/docker-py#installation).
+Install Python 3 (at least 3.5). Also install [docker-py](https://github.com/docker/docker-py#installation) using pip.
 
 You can create a symlink for easy execution. For example:
 
@@ -84,7 +78,9 @@ You can create a symlink for easy execution. For example:
 ln -s <PATH_TO>/lead.py /usr/local/bin/lead
 ```
 
-Or replace `/usr/local/bin` by another path inside your PATH-Variable.
+Or replace `/usr/local/bin` by any other path inside your PATH-Variable which suits you better.
+
+Afterwards you can just execute `lead` followed by the jobs and parameters you wish. See [CLI Commands](#CLICommands.)
 
 ## Settings
 
