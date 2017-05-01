@@ -60,7 +60,7 @@ You also have to either [enable Docker management for non-root user](https://doc
 
 In the root directory of this project run
 
-```
+```bash
 docker build -t lead .
 ```
 
@@ -68,7 +68,7 @@ to build a new Docker image containing everything necessary for running lead.
 
 Create an alias for running the container using
 
-```
+```bash
 alias lead="docker run -it -v /var/run/docker.sock:/var/run/docker.sock -v $(pwd):/source -e CWD=$(pwd) -e HOME=$HOME lead"
 ```
 
@@ -80,7 +80,7 @@ Install Python 3 (at least 3.5). Install [docker-py](https://github.com/docker/d
 
 You can create a symlink for easy execution. For example:
 
-```
+```bash
 ln -s <PATH_TO>/lead.py /usr/local/bin/lead
 ```
 
@@ -101,7 +101,7 @@ Lead looks in your home folder in `~/.lead/lead.settings.yml` for your configura
   - example: "1.27"
   - description: The API version of your installed Docker engine. Lead will try to automatically set the correct version. If this fails, you can get to know the real API version of your installation by executing `docker version` (without `--`) and set it using this option. You can find the value you need at "API version" under "server". 
 
-### Example
+### Example File
 
 ```yaml
 - docker-api-version: "1.27"
@@ -113,7 +113,7 @@ Lead looks in your home folder in `~/.lead/lead.settings.yml` for your configura
 
 Basically you can run lead like this:
 
-```
+```bash
 lead [<job> ...] [--<parameter>=<value> ...]
 ```
 
@@ -121,12 +121,12 @@ Where `<job>` is one (ore more) of the jobs of your pipeline script. And `<param
 
 Make sure you are executing it from a directory containing a `pipeline.py` file.
 
-```
+```bash
 lead [--info]
 ```
 This will print all the available jobs and their meta information like descriptions.[*](#Notes)
 
-```
+```bash
 lead <job> [<job> ...] [--dry-run]
 ```
 This will run the pipeline using the `<job> [<job> ...]` as a starting point without actually executing the scripts inside the Docker containers. Instead it will print the complete pipeline by showing the jobs in execution order, their conditions and meta informations and the commands which could have been executed inside the Docker containers. This makes debugging easy and can be used as a communication tool to share, debug and discuss the pipeline.[*](#Notes)
