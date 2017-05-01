@@ -52,7 +52,9 @@ This example is very straightforward and just an appetizer. To learn more you ca
 
 ### Prerequisites
 
-You have to either [enable Docker management for non-root user](https://docs.docker.com/engine/installation/linux/linux-postinstall/#manage-docker-as-a-non-root-user) (but be sure to read [Docker daemon attack surface](https://docs.docker.com/engine/security/security/#docker-daemon-attack-surface) first) or have to run this script with root privileges (e.g. executing with `sudo`).
+You have to [install Docker](https://docs.docker.com/engine/installation/#supported-platforms). Lead was tested using Docker 17.03 Community Edition. But any newer version should work (even some older versions). If it does not work automatically try adjusting the settings described in the [Settings section](#Settings).
+
+You also have to either [enable Docker management for non-root user](https://docs.docker.com/engine/installation/linux/linux-postinstall/#manage-docker-as-a-non-root-user) (but be sure to read [Docker daemon attack surface](https://docs.docker.com/engine/security/security/#docker-daemon-attack-surface) first) or have to run Lead every time with root privileges (e.g. executing with `sudo`).
 
 ### Using Docker
 
@@ -83,6 +85,27 @@ ln -s <PATH_TO>/lead.py /usr/local/bin/lead
 ```
 
 Or replace `/usr/local/bin` by another path inside your PATH-Variable.
+
+## Settings
+
+Having a Lead settings file is not necessary. But you can customize Lead using this file.
+
+### Location
+
+Lead looks in your home folder in `~/.lead/lead.settings.yml` for your configurations. If it does not exist just create it.
+
+### Options
+
+- `docker-api-version`
+  - type: string
+  - example: "1.27"
+  - description: The API version of your installed Docker engine. Lead will try to automatically set the correct version. If this fails, you can get to know the real API version of your installation by executing `docker version` (without `--`) and set it using this option. You can find the value you need at "API version" under "server". 
+
+### Example
+
+```yaml
+- docker-api-version: "1.27"
+```
 
 ## Getting Started
 
