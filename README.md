@@ -58,7 +58,7 @@ You also have to either [enable Docker management for non-root user](https://doc
 
 ### Using Docker
 
-In the root directory of this project run `docker build -t lead . to build a new Docker image containing everything necessary for running lead.
+In the root directory of this project run `docker build -t lead .` to build a new Docker image containing everything necessary for running lead.
 
 Create an alias for running the container using:
 
