@@ -25,7 +25,7 @@ But these all have some downsides:
   - **locally developers can not make use of these**
   - **hard to test and debug**
 
-**So why should a developer on her/his machine not make use of the pipeline on the server which has all the information about building, testing and running the code?** After all most of the time she/he uses the same commands and tools locally as on the server. This discrepancy can cause a "works on my machine" mindset and create confusion about different results when running on the server. In the worst case developers **are not able to resolve the failing build** because they can not reconstruct the differences between their local development stack and the one running on the server.
+**So why should a developer on her/his machine not make use of the CI/CD pipeline which has all the information about building, testing and running the code?** After all most of the time she/he uses the same commands and tools locally as on the server. This discrepancy can cause a "works on my machine" mindset and create confusion about different results when running on the server. In the worst case developers **are not able to resolve the failing build** because they can not reconstruct the differences between their local development stack and the one running on the server.
 
 Lead to the rescue. It supports **environment independent builds** by running every task/job/step (or whatever you may call it) inside Docker containers. Hence no more version discrepancies for programming languages, build tools, os, etc. Every run of Lead is repeatable and returns the same result. **You can run the same command locally and on the server and get the same result.**
 
