@@ -3,8 +3,11 @@
 @docker("ubuntu:16.04")
 def output_and_return(exec=None):
     exit_code, output = exec("""
-            echo "I'm successfully running inside an ubuntu container";
+            echo 'I\'m successfully running inside an ubuntu container';
         """, shell="bash")
+
+    exit_code, output = exec("""echo 'Marvin'; echo 'ist6'; echo 'Marvin'; exit 6""", shell="bash")
+
     
     # Enable the following code to let the pipeline fail
     # exit_code, output = exec("""
