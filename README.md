@@ -17,23 +17,23 @@ Nowadays basically every CI/CD server allows creating pipelines as code. For exa
 But these all have some downsides:
 
 - These just work on the CI/CD server they were designed for
-  - no cross-compability
+  - **no cross-compability**
 - Inconvenient way of "programming" pipelines (as configuration files)
-  - not very flexible
-  - limited features
+  - **not very flexible**
+  - **limited features**
 - These only work on the server side
-  - locally developers can not make use of these
-  - hard to test and debug
+  - **locally developers can not make use of these**
+  - **hard to test and debug**
 
-So why should a developer on her/his machine not make use of the pipeline on the server which has all the information about building, testing and running the code? After all (s)he uses most of the time the same commands and tools locally as on the server. This discrepancy can cause a "works on my machine" mindset and create confusion about different results when running on the server. In the worst case developers are not able to resolve the failing build because they can not reconstruct the differences between their local development stack and the one running on the server.
+**So why should a developer on her/his machine not make use of the pipeline on the server which has all the information about building, testing and running the code?** After all most of the time she/he uses the same commands and tools locally as on the server. This discrepancy can cause a "works on my machine" mindset and create confusion about different results when running on the server. In the worst case developers **are not able to resolve the failing build** because they can not reconstruct the differences between their local development stack and the one running on the server.
 
-Lead to the rescue. It supports environment independent builds by running every task/job/step (or whatever you may call it) inside Docker containers. Hence no more version discrepancies for programming languages, build tools, os, etc. Every run of Lead is repeatable and returns the same result. You can run the same command locally and on the server and get the same result. 
+Lead to the rescue. It supports **environment independent builds** by running every task/job/step (or whatever you may call it) inside Docker containers. Hence no more version discrepancies for programming languages, build tools, os, etc. Every run of Lead is repeatable and returns the same result. **You can run the same command locally and on the server and get the same result.**
 
-This also encourages the DevOps mindset. Let's be honest, there is always this person in the project responsible for configuring the CI/CD server and/or pipeline. But as developers can and should make use of the pipeline script themselves, they can for the first time really and directly benefit of having a pipeline script.  and are enabled to adjust the pipeline -> creating again benefit for everybody else in the team.
+This also encourages the DevOps mindset. Let's be honest, there is always this person in the project responsible for configuring the CI/CD server and/or pipeline. But as developers can and should make use of the pipeline script themselves, they can for the first time **really and directly benefit of having a pipeline script**. Also they are empowered to adjust the pipeline -> creating again benefit for everybody else in the team.
 
-It is also possible to use Lead with every CI/CD server imaginable. The only requirements are to be able to run Python and/or Docker (see [Installation](#Installation)). Ever switched your CI/CD server? It is very cumbersome and tedious. But having Lead as your pipeline tool you can easily use any CI/CD server without long configuration sessions or complete rewritings of your current pipeline. Now you can choose your CI/CD server solely by features like usability, design, feedback, performance, etc.
+It is also possible to **use Lead with every CI/CD server imaginable**. The only requirements are to be able to run Python and/or Docker (see [Installation](#Installation)). Ever switched your CI/CD server? It is very cumbersome and tedious. But having Lead as your pipeline tool you can easily use any CI/CD server without long configuration sessions or complete rewritings of your current pipeline. Now you can choose your CI/CD server solely by features like usability, design, feedback, performance, etc.
 
-Lead is designed to give you all the power of a real programming language (Python <3) and a fully customizable virtual environment (Docker <3). Well, you deserve to see an example of a simple job to get the feeling:
+Lead is designed to give you all the **power of a real programming language (Python <3)** and a **fully customizable virtual environment (Docker <3)**. Well, you deserve to see an example of a simple job to get the feeling:
 
 ```python
 @job(description="Echoing Hello World.")
