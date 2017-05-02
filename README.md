@@ -85,23 +85,24 @@ Afterwards you can just execute `lead` followed by the jobs and parameters you w
 
 ## Settings
 
-Having a Lead settings file is not necessary. But you can customize Lead using this file.
+A Lead settings file is not always necessary. You can customize Lead using this file.
 
 ### Location
 
-Lead looks in your home folder in `~/.lead/lead.settings.yml` for your configurations. If it does not exist just create it.
+Lead looks in your home folder in `~/.lead/lead.settings.ini` for your configurations. If it does not exist just create it.
 
 ### Options
 
-- `docker-api-version`
-  - type: string
-  - example: "1.27"
-  - description: The API version of your installed Docker engine. Lead will try to automatically set the correct version. If this fails, you can get to know the real API version of your installation by executing `docker version` (without `--`) and set it using this option. You can find the value you need at "API version" under "server". 
+- `[Docker]`
+  - `docker-api-version`
+    - example: 1.27
+    - description: The API version of your installed Docker engine. Lead will try to automatically set the correct version. If this fails, you can get to know the real API version of your installation by executing `docker version` (without `--`) and set it using this option. You can find the value you need at "API version" under "server". 
 
 ### Example File
 
-```yaml
-- docker-api-version: "1.27"
+```ini
+[Docker]
+docker-api-version=1.27
 ```
 
 ## Getting Started
