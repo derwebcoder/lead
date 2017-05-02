@@ -69,6 +69,8 @@ alias lead="docker run -it -v /var/run/docker.sock:/var/run/docker.sock -v $(pwd
 
 Afterwards you can just execute `lead` followed by the jobs and parameters you wish. See [CLI Commands](#CLICommands.)
 
+You may have to alter the alias. For example to mount your Lead settings directory add `-v $HOME/.lead:$HOME/.lead:ro`.
+
 ### Using Python
 
 Install Python 3 (at least 3.5). Also install [docker-py](https://github.com/docker/docker-py#installation) using pip.
