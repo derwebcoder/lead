@@ -126,7 +126,7 @@ Basically you can run lead like this:
 lead [<job> ...] [--<parameter>=<value> ...]
 ```
 
-Where `<job>` is one (ore more) of the jobs of your pipeline script. And `<parameter>` and the according `<value>` are parameters your jobs will receive on execution[*](#Notes).
+Where `<job>` is one (ore more) of the jobs of your pipeline script. And `<parameter>` and the according `<value>` are parameters your jobs will receive on execution.
 
 Make sure you are executing it from a directory containing a `pipeline.py` file.
 

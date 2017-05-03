@@ -316,6 +316,6 @@ for job in jobs_arg:
 print()
 print("==============================")
 print()
-print("Pipeline ended succesfully. :)")
+print("Pipeline ended successfully. :)")
 print()
 print("==============================")

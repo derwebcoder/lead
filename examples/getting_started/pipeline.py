@@ -10,6 +10,7 @@ def hello_world(exec, *args, **kwargs):
 
 
 
+
 # This example shows how to use the return code of a container 
 # and the output to do some post execution checks.
 @job(description="Example of working with return code and log output.")
@@ -50,7 +51,7 @@ def output_and_return(exec, *args, **kwargs):
 # inside the container. So you have full access to it.
 @job(description="Example of manipulating files inside the current working directory.")
 @docker("ubuntu:16.04")
-def alterFile(exec, *args, **kwargs):
+def alter_file(exec, *args, **kwargs):
 
     subj=nameToUpper("Susi") # See below for nameToUpper function
     verb=nameToUpper("eat")
@@ -61,9 +62,9 @@ def alterFile(exec, *args, **kwargs):
     # For a more specific way see the function complexLogic
     exec("""
 
-            date +%d.%m.%Y > example.txt;
-            echo "This file has been created inside the container" >> example.txt;
-            echo "Today {subj} wants to {verb} {obj}." >> example.txt;
+            date +%d.%m.%Y > example.txt
+            echo "This file has been created inside the container" >> example.txt
+            echo "Today {subj} wants to {verb} {obj}." >> example.txt
 
         """.format(**locals()), shell="bash")
 
@@ -74,20 +75,20 @@ def alterFile(exec, *args, **kwargs):
 # Lead will prefer the name given in @job and fallback to the function name of
 # none is specified in @job.
 # Try changing "World" to something different and execute this job again to see this script really working
-# You can also use command options. Try executing "lead helloStranger --name=Peter".
-@job(name="helloStranger", description="Echoing hello to somebody.")
+# You can also use command parameters. Try executing "lead helloAgain --name=Peter".
+@job(name="helloAgain", description="Echoing hello to somebody.")
 @docker("alpine")
-def complexLogic(exec, name="World", *args, **kwargs):
+def complex_logic(exec, name="World", *args, **kwargs):
 
     name=nameToUpper(name) # See below for nameToUpper function
-    
+
     exec("""
 
             if [ "{name}" = "WORLD" ]
                 then
                     echo "Hello World!"
                 else
-                    echo "Not hello world but hello {name}"
+                    echo "Not hello world but hello {name}."
             fi
 
         """.format(name=name), shell="sh")
