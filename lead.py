@@ -1,5 +1,11 @@
 #!/usr/bin/python3
 
+########################################
+#
+# This is a proof of concept. This code is neither good nor commented.
+#
+########################################
+
 import sys
 import signal
 import os
@@ -11,12 +17,12 @@ def getcwd():
     return os.environ.get("CWD", os.getcwd())
 
 def computeHomeDirectory(path=""):
-    print("cHD path: " + path)
+    # print("cHD path: " + path)
     home=os.environ.get("HOME", os.path.expanduser("~"))
     
-    print("cHD HOME: " + home)
+    # print("cHD HOME: " + home)
     home_replaced=path.replace("~",home,1)
-    print("cHD repl: " + home_replaced)
+    # print("cHD repl: " + home_replaced)
     return path if home_replaced == "" else home_replaced
 
 def computeAbsolutePath(path=""):
@@ -27,30 +33,30 @@ def computeAbsolutePath(path=""):
 
     cwd=getcwd()
     path_current=path
-    print("path_current: " + path_current)
+    # print("path_current: " + path_current)
     nr_parent_dirs=path_current.count("../")
-    print("nr_parent_dirs: " + str(nr_parent_dirs))
+    # print("nr_parent_dirs: " + str(nr_parent_dirs))
     nr_dirs_cwd=cwd.count("/")
-    print("nr_dirs_cwd: " + str(nr_dirs_cwd))
+    # print("nr_dirs_cwd: " + str(nr_dirs_cwd))
 
     if nr_parent_dirs > nr_dirs_cwd:
         print("Error: Invalid path '" + path + "' for current working directory '" + cwd + "'.")
         sys.exit(1)
 
     cwd_slash_positions=( [pos for pos, char in enumerate(cwd) if char == "/"])
-    print("cwd_slash_positions: ")
-    print(cwd_slash_positions)
+    # print("cwd_slash_positions: ")
+    # print(cwd_slash_positions)
     cwd_cut=cwd[:(cwd_slash_positions[nr_dirs_cwd - nr_parent_dirs])+1]
-    print("cwd_cut: " + cwd_cut)
+    # print("cwd_cut: " + cwd_cut)
 
     path_without_parents=path.replace("../", "")
     path_without_relative_path=path_without_parents.replace("./", "")
 
-    print("cAP path: "  + path)
+    # print("cAP path: "  + path)
     cwd=getcwd()
-    print("cAP cwd : "  + cwd)
+    # print("cAP cwd : "  + cwd)
     absolute_path=cwd_cut + path_without_relative_path
-    print("cAP abso: " + absolute_path)
+    # print("cAP abso: " + absolute_path)
     return absolute_path
 
 lead_settings_path=computeHomeDirectory("~") + "/.lead/lead.settings.ini"
@@ -102,16 +108,25 @@ def exec_wrapper(container):
         if shell == "sh":
             cmd = "sh -c '" + cmd + "'"
 
-        print("exec " + cmd + " in " + container.id)
+        # print()
+        # print("***")
+        # print("DEBUG | ")
+        # print("exec " + cmd + " in " + container.id)
+        # print()
+        # print("***")
+        # print()
 
         exec_id = ll_client.exec_create(container.id, cmd)['Id']
         exec_stream = ll_client.exec_start(exec_id, detach=False, stream=True)
 
         output = ""
-
+        print()
+        print("*** CONTAINER OUTPUT")
+        print()
         for line in exec_stream:
             print(line.decode('UTF-8'))
             output = output + line.decode('UTF-8')
+        print("*** END OF OUTPUT")
 
         exec_result = ll_client.exec_inspect(exec_id)
         
@@ -120,18 +135,19 @@ def exec_wrapper(container):
     return exec
 
 def pull_image(image):
-    print("checking if image " + image + " exists...")
+    # print("checking if image " + image + " exists...")
     try:
         client.images.get(image)
     except d.errors.ImageNotFound:
+        print("INFO | Image \"" + image + "\" not found. Pulling ...")
         image_repository, image_tag = image.split(':')
         pull_stream = ll_client.pull(image_repository, tag=image_tag, stream=True)
         for line in pull_stream:
             download_status = ast.literal_eval(line.decode('UTF-8'))
             print(download_status.get('id', "unknown id") + " [" + download_status.get('status', "unknown status") + "] " + download_status.get('progress', ""))
-        print("Image " + image + " downloaded.")
-    else:
-        print("Image " + image + " already downloaded.")
+        print("INFO | Image " + image + " successfully downloaded.")
+    # else:
+        # print("Image " + image + " already downloaded.")
 
 containers=[]
 def docker(image, mountDocker=False, volumes=None, useHostUser=True):
@@ -140,9 +156,9 @@ def docker(image, mountDocker=False, volumes=None, useHostUser=True):
             pull_image(image)
             container=None
             user=None
-            print("**************************************************")
-            print(os.getcwd())
-            print("**************************************************")
+            # print("**************************************************")
+            # print(os.getcwd())
+            # print("**************************************************")
             volumesDefault={
                 getcwd(): {
                     'bind': '/source',
@@ -163,12 +179,12 @@ def docker(image, mountDocker=False, volumes=None, useHostUser=True):
                 # Cycling through the volumes to replace dict keys (host path) with absolute path or expanding ~ to user home
                 parsedVolumes={}
                 for key in volumes:
-                    print("replacing " + key)
+                    # print("replacing " + key)
                     computed_volume = computeAbsolutePath(computeHomeDirectory(key))
-                    print("computed "  + computed_volume)
+                    # print("computed "  + computed_volume)
                     parsedVolumes[computed_volume] = volumes[key]
                     #parsedVolumes[os.path.abspath(os.path.expanduser(key))] = volumes[key]
-                print(parsedVolumes)
+                # print(parsedVolumes)
                 volumesTotal.update(parsedVolumes)
 
             if useHostUser is True:
@@ -181,10 +197,10 @@ def docker(image, mountDocker=False, volumes=None, useHostUser=True):
                                             user=user,
                                             detach=True)
             containers.append(container)
-            print("Container started")
+            # print("Container started")
             exec_func = exec_wrapper(container)
-            print("Exec Func:")
-            print(exec_func)
+            # print("Exec Func:")
+            # print(exec_func)
             return_value=func(*kargs, exec=exec_func, **kwargs)
             container.kill()
             container.remove(force=True)
@@ -199,7 +215,7 @@ job_dict = dict()
 
 def job(name=None, description="No description given."):
     def job_decorator(func):
-        print("func")
+        # print("func")
         dir(func)
         job_name=getattr(func, 'job_name', func.__name__)
         if name is not None:
@@ -208,10 +224,10 @@ def job(name=None, description="No description given."):
             job_name=name
         job_dict[job_name] = func
         def func_wrapper(*kargs, **kwargs):
-            print("kargs: ")
-            print(kargs)
-            print("kwargs: ")
-            print(kwargs)
+            # print("kargs: ")
+            # print(kargs)
+            # print("kwargs: ")
+            # print(kwargs)
             return func(*kargs, **kwargs)
         #job_dict[job_name] = func_wrapper
         return func_wrapper
@@ -223,11 +239,19 @@ def clean_arguments(args):
     ret_jobs = list()
     ret_args = dict()
 
-    print("##### ARGS")
+    # print("##### ARGS")
     for index, k in enumerate(args):
-        print(index, k)
+        # print(index, k)
 
         if k.startswith('--'):
+            if k == '--exec':
+                print()
+                print("==============================")
+                print()
+                print("ERROR | You can not use option name \"exec\": \"" + job + "\" is violating this rule.")
+                print()
+                print("==============================")
+                sys.exit(8)
             if '=' in k:
                 key, val = k.split('=')
             else:
@@ -236,9 +260,9 @@ def clean_arguments(args):
         else:
             ret_jobs.append(k)
 
-    print(ret_jobs)
-    print(ret_args)
-    print("##### ARGS")
+    # print(ret_jobs)
+    # print(ret_args)
+    # print("##### ARGS")
     return ret_jobs, ret_args
 
 jobs_arg, opt_arg = clean_arguments(sys.argv[1:])
@@ -246,24 +270,52 @@ jobs_arg, opt_arg = clean_arguments(sys.argv[1:])
 def pre_check(jobs_arg, job_dict):
     for job in jobs_arg:
         if job not in job_dict:
-            print("nicht vorhanden")
-        else:
-            print("vorhanden")
+            print()
+            print("==============================")
+            print()
+            print("ERROR | Could not find a job with the name \"" + job + "\" in pipeline.py.")
+            print()
+            print("==============================")
+            sys.exit(6)
 
 pre_check(jobs_arg, job_dict)
 
 for job in jobs_arg:
-    return_value=job_dict[job]()
+    print()
+    print("==============================")
+    print()
+    print("INFO | Running " + job)
+    print()
+    print("==============================")
+    print()
+    return_value=job_dict[job](**opt_arg)
     if return_value is not None:
         if type(return_value) is not int:
-            print("The job \"" + job + "\" returned \"" + str(return_value) + "\".")
-            print("Failing pipeline because of non zero return value.")
+            print()
+            print("=========================")
+            print()
+            print("ERROR | The job \"" + job + "\" returned \"" + str(return_value) + "\".")
+            print("ERROR | Failing pipeline because of non zero return value.")
+            print()
+            print("=========================")
             remove_all_containers()
             sys.exit(2)
         else:
             if return_value > 0:
-                print("The job \"" + job + "\" returned \"" + str(return_value) + "\".")
+                print()
+                print("=========================")
+                print()
+                print("ERROR | The job \"" + job + "\" returned \"" + str(return_value) + "\".")
+                print("ERROR | Failing pipeline because of non zero return value.")
+                print()
+                print("=========================")
                 remove_all_containers()
                 sys.exit(return_value)
+    
 
-print(job_dict)
+print()
+print("==============================")
+print()
+print("Pipeline ended succesfully. :)")
+print()
+print("==============================")

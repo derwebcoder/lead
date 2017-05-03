@@ -109,6 +109,15 @@ docker-api-version=1.27
 
 ## Getting Started
 
+You can find some examples inside the examples directory. The examples are ordered by programming languages and frameworks.
+To start with the basics and get a feeling of the possibilities of Lead, you should check out the "getting_started" directory first.
+
+Every directory has its own README.md with further descriptions. Currently the following examples exist:
+
+- Getting Started
+- Java
+  - Spring-Boot
+
 ## CLI Commands
 
 Basically you can run lead like this:
