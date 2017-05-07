@@ -14,6 +14,45 @@ import docker as d
 import configparser
 import glob
 
+dry_run=False
+debug_run=False
+info_run=False
+
+def clean_arguments(args):
+    global dry_run
+    ret_jobs = list()
+    ret_args = dict()
+
+    # print("##### ARGS")
+    for index, k in enumerate(args):
+        # print(index, k)
+
+        if k.startswith('--'):
+            if k == '--exec':
+                print()
+                print("==============================")
+                print()
+                print("ERROR | You can not use option name \"exec\": \"" + job + "\" is violating this rule.")
+                print()
+                print("==============================")
+                sys.exit(8)
+            if '=' in k:
+                key, val = k.split('=')
+            else:
+                key, val = k, 'true'
+            ret_args[key.strip('--')] = val
+        else:
+            ret_jobs.append(k)
+
+    # print(ret_jobs)
+    # print(ret_args)
+    if 'dry-run' in ret_args:
+        dry_run=True
+    # print("##### ARGS")
+    return ret_jobs, ret_args
+
+jobs_arg, opt_arg = clean_arguments(sys.argv[1:])
+
 def getcwd():
     return os.environ.get("CWD", os.getcwd())
 
@@ -100,6 +139,9 @@ signal.signal(signal.SIGTERM, signal_handler)
 
 def exec_wrapper(container):
     def exec(cmd, shell=None):
+        if dry_run:
+            return 0, "Success"
+        
         if shell is not None and type(shell) is not str:
             raise Exception("shell has to be a string")
         
@@ -149,7 +191,7 @@ def pull_image(image):
         print("INFO | Image " + image + " successfully downloaded.")
     # else:
         # print("Image " + image + " already downloaded.")
-
+exec_list=[]
 containers=[]
 def docker(image, mountDaemon=False, volumes=None, useHostUser=True):
     def docker_decorator(func):
@@ -219,6 +261,7 @@ def docker(image, mountDaemon=False, volumes=None, useHostUser=True):
             exec_func = exec_wrapper(container)
             # print("Exec Func:")
             # print(exec_func)
+            exec_list.append(getattr(func, 'job_name', func.__name__))
             return_value=func(*kargs, exec=exec_func, **kwargs)
             container.kill()
             container.remove(force=True)
@@ -252,38 +295,6 @@ def job(name=None, description="No description given."):
     return job_decorator
 
 exec(compile(open("pipeline.py", "rb").read(), "pipeline.py", 'exec'))
-
-def clean_arguments(args):
-    ret_jobs = list()
-    ret_args = dict()
-
-    # print("##### ARGS")
-    for index, k in enumerate(args):
-        # print(index, k)
-
-        if k.startswith('--'):
-            if k == '--exec':
-                print()
-                print("==============================")
-                print()
-                print("ERROR | You can not use option name \"exec\": \"" + job + "\" is violating this rule.")
-                print()
-                print("==============================")
-                sys.exit(8)
-            if '=' in k:
-                key, val = k.split('=')
-            else:
-                key, val = k, 'true'
-            ret_args[key.strip('--')] = val
-        else:
-            ret_jobs.append(k)
-
-    # print(ret_jobs)
-    # print(ret_args)
-    # print("##### ARGS")
-    return ret_jobs, ret_args
-
-jobs_arg, opt_arg = clean_arguments(sys.argv[1:])
 
 def pre_check(jobs_arg, job_dict):
     for job in jobs_arg:
@@ -353,7 +364,7 @@ for job in jobs_arg:
                 remove_all_containers()
                 sys.exit(return_value)
     
-
+#print(exec_list)
 print()
 print("==============================")
 print()
