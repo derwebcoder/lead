@@ -28,7 +28,7 @@ def down(exec, *args, **kwargs):
     mountDaemon=True, 
     useHostUser=False)
 def up(exec, *args, **kwargs):
-    depends(build_gradle, ifFalse=fileExists(pattern="target/*.jar"))
+    depends(build, ifFalse=fileExists(pattern="target/*.jar"))
     depends(down, ifTrue=isContainerRunningWithId(id="spring-example"))
     exec("""
 
