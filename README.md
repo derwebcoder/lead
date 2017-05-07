@@ -124,9 +124,9 @@ To start with the basics and get a feeling of the possibilities of Lead, you sho
 
 Every directory has its own README.md with further descriptions. Currently the following examples exist:
 
-- [Getting Started](examples/getting_started/README.md)
+- [Getting Started](examples/getting_started)
 - Java
-  - [Spring-Boot](examples/java/spring-boot/README.md)
+  - [Spring-Boot](examples/java/spring-boot)
 
 ## CLI Commands
 
