@@ -32,6 +32,6 @@ def up(exec, *args, **kwargs):
     depends(down, ifTrue=isContainerRunningWithId(id="spring-example"))
     exec("""
 
-        docker run -d --name spring-example -v """ + os.getcwd() + """:/usr/src/myapp -w /usr/src/myapp -p 8080:8080 java:8 java -jar ./target/gs-spring-boot-0.1.0.jar
+        docker run -d --name spring-example -v """ + getcwd() + """:/usr/src/myapp -w /usr/src/myapp -p 8080:8080 java:8 java -jar ./target/gs-spring-boot-0.1.0.jar
     
     """, shell="sh")
