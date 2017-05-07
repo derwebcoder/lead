@@ -41,7 +41,7 @@ Lead to the rescue. It supports **environment independent builds** by running ev
 
 This also encourages the DevOps mindset. Let's be honest, there is always this person in the project responsible for configuring the CI/CD server and/or pipeline. But as developers can and should make use of the pipeline script and Lead themselves, they can for the first time **really and directly benefit of having a pipeline script**. Also they are empowered to adjust the pipeline -> creating again benefit for everybody else in the team.
 
-It is also possible to **use Lead with every CI/CD server imaginable**. The only requirements are to be able to run Python and/or Docker (see [Installation](#Installation)). Ever switched your CI/CD server? It is very cumbersome and tedious. But having Lead as your pipeline tool you can easily use any CI/CD server without long configuration sessions or complete rewritings of your current pipeline. Now you can choose your CI/CD server solely by features like usability, design, feedback, performance, etc.
+It is also possible to **use Lead with every CI/CD server imaginable**. The only requirements are to be able to run Python and/or Docker (see [Installation](#installation)). Ever switched your CI/CD server? It is very cumbersome and tedious. But having Lead as your pipeline tool you can easily use any CI/CD server without long configuration sessions or complete rewritings of your current pipeline. Now you can choose your CI/CD server solely by features like usability, design, feedback, performance, etc.
 
 Lead is designed to give you all the **power of a real programming language (Python <3)** and a **fully customizable virtual environment (Docker <3)**. Maybe the following short example gives you an idea of the possibilities:
 
@@ -57,13 +57,13 @@ def hello_world(exec):
   """.format(world=world_str), shell="bash")
   return exit_code
 ``` 
-This example is very simple and just an appetizer. To learn more you can either start with [installing Lead](#Installation) or jump directly to [Getting Started](#GettingStarted) featuring even more examples. If you have a question maybe it is already answered in the [FAQ section](#FAQ).
+This example is very simple and just an appetizer. To learn more you can either start with [installing Lead](#installation) or jump directly to [Getting Started](#getting-started) featuring even more examples. If you have a question maybe it is already answered in the [FAQ section](#faq).
 
 ## Installation
 
 ### Prerequisites
 
-You have to [install Docker](https://docs.docker.com/engine/installation/#supported-platforms). Lead was tested using Docker 17.03 Community Edition. But any newer version should work (even some older versions). If it does not work automatically try adjusting the settings described in the [Settings section](#Settings).
+You have to [install Docker](https://docs.docker.com/engine/installation/#supported-platforms). Lead was tested using Docker 17.03 Community Edition. But any newer version should work (even some older versions). If it does not work automatically try adjusting the settings described in the [Settings section](#settings).
 
 You also have to either [enable Docker management for non-root user](https://docs.docker.com/engine/installation/linux/linux-postinstall/#manage-docker-as-a-non-root-user) (but be sure to read [Docker daemon attack surface](https://docs.docker.com/engine/security/security/#docker-daemon-attack-surface) first) or have to run Lead every time with root privileges (e.g. executing with `sudo`).
 
@@ -77,7 +77,7 @@ Create an alias for running the container using:
 alias lead="docker run -it -v /var/run/docker.sock:/var/run/docker.sock -v $(pwd):/source -e CWD=$(pwd) -e HOME=$HOME lead"
 ```
 
-Afterwards you can just execute `lead` followed by the jobs and parameters you wish. See [CLI Commands](#CLICommands.)
+Afterwards you can just execute `lead` followed by the jobs and parameters you wish. See [CLI Commands](#cli-commands.)
 
 You may have to alter the alias. For example to mount your Lead settings directory add `-v $HOME/.lead:$HOME/.lead:ro`.
 
@@ -93,7 +93,7 @@ ln -s <PATH_TO>/lead.py /usr/local/bin/lead
 
 Or replace `/usr/local/bin` by any other path inside your PATH-Variable which suits you better.
 
-Afterwards you can just execute `lead` followed by the jobs and parameters you wish. See [CLI Commands](#CLICommands.)
+Afterwards you can just execute `lead` followed by the jobs and parameters you wish. See [CLI Commands](#cli-commands.)
 
 ## Settings
 
@@ -124,9 +124,9 @@ To start with the basics and get a feeling of the possibilities of Lead, you sho
 
 Every directory has its own README.md with further descriptions. Currently the following examples exist:
 
-- Getting Started
+- [Getting Started](examples/getting_started/README.md)
 - Java
-  - Spring-Boot
+  - [Spring-Boot](examples/java/spring-boot/README.md)
 
 ## CLI Commands
 
@@ -143,12 +143,12 @@ Make sure you are executing it from a directory containing a `pipeline.py` file.
 ```bash
 lead [--info]
 ```
-This will print all the available jobs and their meta information like descriptions.[*](#Notes)
+This will print all the available jobs and their meta information like descriptions.[*](#notes)
 
 ```bash
 lead <job> [<job> ...] [--dry-run]
 ```
-This will run the pipeline using the `<job> [<job> ...]` as a starting point without actually executing the scripts inside the Docker containers. Instead it will print the complete pipeline by showing the jobs in execution order, their conditions and meta informations and the commands which could have been executed inside the Docker containers. This makes debugging easy and can be used as a communication tool to share, debug and discuss the pipeline.[*](#Notes)
+This will run the pipeline using the `<job> [<job> ...]` as a starting point without actually executing the scripts inside the Docker containers. Instead it will print the complete pipeline by showing the jobs in execution order, their conditions and meta informations and the commands which could have been executed inside the Docker containers. This makes debugging easy and can be used as a communication tool to share, debug and discuss the pipeline.[*](#notes)
 
 ## FAQ
 
