@@ -12,6 +12,7 @@ import os
 import ast
 import docker as d
 import configparser
+import glob
 
 def getcwd():
     return os.environ.get("CWD", os.getcwd())
@@ -150,7 +151,7 @@ def pull_image(image):
         # print("Image " + image + " already downloaded.")
 
 containers=[]
-def docker(image, mountDocker=False, volumes=None, useHostUser=True):
+def docker(image, mountDaemon=False, volumes=None, useHostUser=True):
     def docker_decorator(func):
         def func_wrapper(*kargs, **kwargs):
             pull_image(image)
@@ -167,7 +168,7 @@ def docker(image, mountDocker=False, volumes=None, useHostUser=True):
             }
             volumesTotal={}
             volumesTotal.update(volumesDefault)
-            if mountDocker is True:
+            if mountDaemon is True:
                 volumesTotal.update({
                     '/var/run/docker.sock': {
                         'bind': '/var/run/docker.sock',
@@ -175,16 +176,33 @@ def docker(image, mountDocker=False, volumes=None, useHostUser=True):
                     }
                 })
             os.path.expanduser("~")
-            if isinstance(volumes, dict):
+            if isinstance(volumes, list):
                 # Cycling through the volumes to replace dict keys (host path) with absolute path or expanding ~ to user home
                 parsedVolumes={}
-                for key in volumes:
-                    # print("replacing " + key)
-                    computed_volume = computeAbsolutePath(computeHomeDirectory(key))
-                    # print("computed "  + computed_volume)
-                    parsedVolumes[computed_volume] = volumes[key]
-                    #parsedVolumes[os.path.abspath(os.path.expanduser(key))] = volumes[key]
-                # print(parsedVolumes)
+                for item in volumes:
+                    options = item.split(":")
+                    host_path=""
+                    container_path=""
+                    mode="rw"
+                    if len(options) < 2 or len(options) > 3:
+                        print()
+                        print("==============================")
+                        print()
+                        print("ERROR | The volume \"" + item + "\" is not a valid volume description. Try <HOST_PATH>:<CONTAINER_PATH>[:ro|rw].")
+                        print()
+                        print("==============================")
+                        sys.exit(8)
+                    if len(options) >= 2:
+                        host_path=computeAbsolutePath(computeHomeDirectory(options[0]))
+                        container_path=options[1]
+                    if len(options) == 3:
+                        mode=options[2]
+
+                    parsedVolumes[host_path] = {
+                        'bind': container_path,
+                        'mode': mode
+                    }
+
                 volumesTotal.update(parsedVolumes)
 
             if useHostUser is True:
@@ -279,6 +297,29 @@ def pre_check(jobs_arg, job_dict):
             sys.exit(6)
 
 pre_check(jobs_arg, job_dict)
+
+def isContainerRunningWithId(id=None):
+    try:
+        client.containers.get(id)
+        return True
+    except BaseException:
+        return False
+
+def fileExists(pattern=None):
+    return glob.glob(pattern)
+
+def depends(jobName=None, ifTrue=True, ifFalse=False):
+    if callable(jobName):
+        if ifTrue and not ifFalse:
+            jobName()
+    else:
+        print()
+        print("==============================")
+        print()
+        print("ERROR | depends() + \"" + jobName + "\" is not a function.")
+        print()
+        print("==============================")
+        sys.exit(16)
 
 for job in jobs_arg:
     print()
