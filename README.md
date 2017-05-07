@@ -4,6 +4,16 @@ Lead is a pipeline tool to automate repeating tasks. It is not a replacement for
 
 The ultimate goal is to allow scripting of pipelines which run everywhere.
 
+## Features
+
+- Pipelines for server and client side
+- Full featured programming language (Python)
+- Environment independent thanks to containers
+- Programming language / tool independent - whatever is possible inside a contianer is possible with Lead
+- Pipelines for multilanguage projects
+- Clone & play - no more project specific machine setup / installations needed
+- Compatible with any CI/CD server supporting Docker
+
 ## Why Should I Care?
 
 Nowadays basically every CI/CD server allows creating pipelines as code. For example:
@@ -47,7 +57,7 @@ def hello_world(exec):
   """.format(world=world_str), shell="bash")
   return exit_code
 ``` 
-This example is very simple and just an appetizer. To learn more you can either start with [installing Lead](#Installation) or jump directly to [Getting Started](#GettingStarted) and even more [Examples](#Examples). If you have a question maybe it is already answered in the [FAQ section](#FAQ).
+This example is very simple and just an appetizer. To learn more you can either start with [installing Lead](#Installation) or jump directly to [Getting Started](#GettingStarted) featuring even more examples. If you have a question maybe it is already answered in the [FAQ section](#FAQ).
 
 ## Installation
 
@@ -146,6 +156,8 @@ This will run the pipeline using the `<job> [<job> ...]` as a starting point wit
   - No. You can use Lead to virtually create any deployment package you wish (e.g. .tar.gz, .rpm, .deb, etc.). But you have to install Docker to be able to run Lead.
 - Does Lead take care of dependency management or compile my source code?
   - No, not directly. For dependency management, compilation etc. you still have to use tools like Maven, Composer, npm, etc. But Lead can run these tools for you and will help you using these in an reproducable environment. So instead of for example running `mvn clean package` and afterwards `tar -czf product.tar.gz target/*.jar` you can automate these steps using Lead and for example could just run `lead package` (given that you created a job named `package` inside your `pipeline.py` which does this).
+- Why "Lead"?
+  - I was looking for a word which is not too far from the idea of a pipeline. But at the same time it should be short, as it should be fast and easy to type. So I started with the word "pipeline". A translation to german returns  (besides others) the word "Leitung". Translating this back to english returns "lead". 
 
 # Warning Notice
 
