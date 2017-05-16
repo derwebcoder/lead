@@ -1,6 +1,6 @@
 # The most basic example
 @job(description="Echoing hello world.")
-@docker("alpine")
+@docker("alpine:latest")
 def hello_world(exec, *args, **kwargs):
     exec("""
         
@@ -78,7 +78,7 @@ def alter_file(exec, *args, **kwargs):
 # Try changing "World" to something different and execute this job again to see this script really working
 # You can also use command parameters. Try executing "lead helloAgain --name=Peter".
 @job(name="helloAgain", description="Echoing hello to somebody.")
-@docker("alpine")
+@docker("alpine:latest")
 def complex_logic(exec, name="World", *args, **kwargs):
 
     name=nameToUpper(name) # See below for nameToUpper function
