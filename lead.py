@@ -314,7 +314,7 @@ def isContainerRunningWithId(id=None):
         client.containers.get(id)
         return True
     except BaseException:
-        return False
+        return False 
 
 def fileExists(pattern=None):
     return glob.glob(pattern)

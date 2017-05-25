@@ -1,7 +1,7 @@
 import os, sys
-from classes.Job import Job
-from helpers.path_helpers import get_cwd, compute_home_directory, compute_absolute_path
-from helpers.logging import log, log_error
+from lead.jobs.Job import Job
+from lead.helpers.path_helpers import get_cwd, compute_home_directory, compute_absolute_path
+from lead.helpers.logging import log, log_error
 
 class DockerJob(Job):
 
@@ -32,7 +32,7 @@ class DockerJob(Job):
 
 
     def run_job(self, *args, **kwargs):
-        self.function(self.function, *args, **kwargs)
+        self.function(exec=self.function, *args, **kwargs)
 
     def __parse_volumes(self, volumes=None, mount_daemon=False):
         parsed_volumes = {}

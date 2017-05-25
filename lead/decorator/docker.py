@@ -1,5 +1,5 @@
 
-from classes.DockerJob import DockerJob
+from lead.classes.DockerJob import DockerJob
 
 def docker(image, mount_daemon=False, volumes=None, use_host_user=True):
     def docker_decorator(func):

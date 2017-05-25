@@ -1,5 +1,5 @@
 
-from classes.Job import Job
+from lead.classes.Job import Job
 
 def job(name=None, description=None):
     def job_decorator(func):
