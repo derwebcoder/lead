@@ -89,6 +89,13 @@ class DockerHelper:
             self.__pull_image(image)
             log("Image " + image + " successfully downloaded.")
 
+    def is_container_running_with_id(self, id=None):
+        try:
+            self.client.containers.get(id)
+            return True
+        except BaseException:
+            return False 
+
     def __pull_image(self, image):
         image_repository, image_tag = image.split(':')
         if image_tag is None:

@@ -12,6 +12,12 @@ class Job:
         self.name = name
         self.function = function
         self.description = kwargs.get('description', "")
+    
+    def get_name(self):
+        return self.name
 
-    def run_job(self, *args, **kwargs):
+    def get_description(self):
+        return self.description
+
+    def run(self, *args, **kwargs):
         return self.function(*args, **kwargs)

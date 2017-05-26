@@ -31,7 +31,7 @@ class DockerJob(Job):
             self.user = str(os.getuid())+":"+str(os.getgid())
 
 
-    def run_job(self, *args, **kwargs):
+    def run(self, *args, **kwargs):
         self.function(exec=self.function, *args, **kwargs)
 
     def __parse_volumes(self, volumes=None, mount_daemon=False):
