@@ -6,9 +6,9 @@ from lead.helpers.DockerHelper import DockerHelper
 dockerHelper = DockerHelper()
 
 def is_container_running_with_id(id=None):
-    return DockerHelper.is_container_running_with_id(id)
+    return dockerHelper.is_container_running_with_id(id)
 
-def fileExists(pattern=None):
+def file_exists(pattern=None):
     return glob.glob(pattern)
 
 def depends(jobName=None, ifTrue=True, ifFalse=False):

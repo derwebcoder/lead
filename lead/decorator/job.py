@@ -1,5 +1,5 @@
 
-from lead.classes.Job import Job
+from lead.jobs.Job import Job
 
 def job(name=None, description=None):
     def job_decorator(func):
@@ -17,7 +17,7 @@ def job(name=None, description=None):
                 description=description)
 
         def func_wrapper(*args, **kwargs):
-            return job_obj.run_job(*args, **kwargs)
+            return job_obj.run(*args, **kwargs)
 
         return func_wrapper
     return job_decorator

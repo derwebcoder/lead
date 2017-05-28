@@ -2,6 +2,7 @@ import os, sys
 from lead.jobs.Job import Job
 from lead.helpers.path_helpers import get_cwd, compute_home_directory, compute_absolute_path
 from lead.helpers.logging import log, log_error
+from lead.helpers.DockerHelper import DockerHelper
 
 class DockerJob(Job):
 
@@ -30,9 +31,13 @@ class DockerJob(Job):
         if use_host_user is True:
             self.user = str(os.getuid())+":"+str(os.getgid())
 
+        self.dockerHelper = DockerHelper()
 
     def run(self, *args, **kwargs):
-        self.function(exec=self.function, *args, **kwargs)
+        container = self.dockerHelper.create_container(self.image, self.volumes, self.user)
+        exec_func = self.dockerHelper.create_exec(container)
+        self.function(exec=exec_func, *args, **kwargs)
+        self.dockerHelper.kill_container(container)
 
     def __parse_volumes(self, volumes=None, mount_daemon=False):
         parsed_volumes = {}

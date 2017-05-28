@@ -1,3 +1,4 @@
+from lead.pipeline.Pipeline import Pipeline
 
 class Job:
 
@@ -12,6 +13,10 @@ class Job:
         self.name = name
         self.function = function
         self.description = kwargs.get('description', "")
+
+        self.pipeline = Pipeline()
+        self.pipeline.add_job(self)
+
     
     def get_name(self):
         return self.name

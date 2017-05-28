@@ -1,7 +1,7 @@
 
 from lead.helpers.logging import log, log_error
 from lead.stores.ContainerStore import ContainerStore
-import docker as d
+import docker
 import ast
 
 class DockerHelper:
@@ -14,13 +14,14 @@ class DockerHelper:
         # docker_api_version=lead_settings.get("docker-api-version")
         docker_api_version = None
         if docker_api_version is not None:
-            client = d.from_env(version=docker_api_version)
-            ll_client = d.APIClient(version=docker_api_version)
+            self.client = docker.from_env(version=docker_api_version)
+            self.ll_client = docker.APIClient(version=docker_api_version)
         else:
-            client = d.from_env(version="auto")
-            ll_client = d.APIClient(version="auto")
+            self.client = docker.from_env(version="auto")
+            self.ll_client = docker.APIClient(version="auto")
 
     def create_container(self, image, volumes=None, user=None):
+        self.check_for_image(image)
         container = self.client.containers.run(
             image,
             "", # CMD not necessary because of entrypoint
@@ -75,6 +76,8 @@ class DockerHelper:
                     print("[log] " + output_line)
                 output = output + line_decoded
 
+            print()
+
             exec_result = self.ll_client.exec_inspect(exec_id)
             
             return exec_result['ExitCode'], output
@@ -84,25 +87,26 @@ class DockerHelper:
     def check_for_image(self, image):
         try:
             self.client.images.get(image)
-        except d.errors.ImageNotFound:
+        except docker.errors.ImageNotFound:
             log("Image \"" + image + "\" not found. Pulling ...")
             self.__pull_image(image)
             log("Image " + image + " successfully downloaded.")
 
+    def __pull_image(self, image):
+        image_repository, image_tag = image.split(':')
+        if image_tag is None:
+            image_tag = "latest"
+        
+        pull_stream = self.ll_client.pull(image_repository, tag=image_tag, stream=True)
+        for line in pull_stream:
+            download_status = ast.literal_eval(line.decode('UTF-8'))
+            print(download_status.get('id', "unknown id") +
+                " [" + download_status.get('status', "unknown status") + "] " +
+                download_status.get('progress', ""))
+    
     def is_container_running_with_id(self, id=None):
         try:
             self.client.containers.get(id)
             return True
         except BaseException:
             return False 
-
-    def __pull_image(self, image):
-        image_repository, image_tag = image.split(':')
-        if image_tag is None:
-            image_tag = "latest"
-        pull_stream = self.ll_client.pull(image_repository, tag=image_tag, stream=True)
-        for line in pull_stream:
-            download_status = ast.literal_eval(line.decode('UTF-8'))
-            log(download_status.get('id', "unknown id") +
-                " [" + download_status.get('status', "unknown status") + "] " +
-                download_status.get('progress', ""))

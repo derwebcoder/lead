@@ -1,5 +1,5 @@
 
-from lead.classes.DockerJob import DockerJob
+from lead.jobs.DockerJob import DockerJob
 
 def docker(image, mount_daemon=False, volumes=None, use_host_user=True):
     def docker_decorator(func):
@@ -13,7 +13,7 @@ def docker(image, mount_daemon=False, volumes=None, use_host_user=True):
             use_host_user=use_host_user)
 
         def func_wrapper(*args, **kwargs):
-            return job.run_job(*args, **kwargs)
+            return job.run(*args, **kwargs)
 
         func_wrapper.job = job
 
