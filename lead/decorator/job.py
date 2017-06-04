@@ -10,6 +10,8 @@ def job(name=None, description=None):
             job_obj = getattr(func, 'job')
             if name is not None:
                 job_obj.name = name
+            if description is not None:
+                job_obj.description = description
         else:
             job_obj = Job(
                 name=name or func.__name__,

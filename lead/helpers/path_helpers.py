@@ -1,5 +1,6 @@
 import os
 import sys
+import glob
 
 def get_cwd():
     return os.environ.get("CWD", os.getcwd())
@@ -44,3 +45,6 @@ def compute_absolute_path(path=""):
     absolute_path=cwd_cut + path_without_relative_path
     # print("cAP abso: " + absolute_path)
     return absolute_path
+
+def check_if_file_exists(path=None):
+    return glob.glob(path)

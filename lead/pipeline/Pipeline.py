@@ -24,3 +24,8 @@ class Pipeline:
         for job in jobs:
             real_job = Pipeline.__jobs.get(job)
             real_job.run(**args)
+
+    def show_information(self):
+        for job_name, job in Pipeline.__jobs.items():
+            print(job.get_name())
+            print("\t" + job.get_description())

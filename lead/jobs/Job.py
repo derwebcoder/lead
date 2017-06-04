@@ -2,7 +2,7 @@ from lead.pipeline.Pipeline import Pipeline
 
 class Job:
 
-    def __init__(self, name, function, **kwargs):
+    def __init__(self, name, function, description="<no description>", **kwargs):
         if name is not None:
             if ' ' in name:
                 raise ValueError("A job can not contain a space: \"" + name + "\"")
@@ -12,12 +12,11 @@ class Job:
 
         self.name = name
         self.function = function
-        self.description = kwargs.get('description', "")
+        self.description = description
 
         self.pipeline = Pipeline()
         self.pipeline.add_job(self)
 
-    
     def get_name(self):
         return self.name
 
