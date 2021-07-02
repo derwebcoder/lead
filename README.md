@@ -1,3 +1,6 @@
+**Important**
+This repository will not be maintained anymore. It exists only for documentary purposes.
+
 # Lead
 
 Lead is a pipeline tool to automate repeating tasks. It is not a replacement for build tools like Maven, Composer, npm, etc. Instead you should think of it as an orchestration tool with the power of Docker.
